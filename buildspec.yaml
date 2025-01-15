@@ -3,8 +3,11 @@ version: 0.2
 phases:
   pre_build:
     commands:
+      - echo "Preparing the environment..."
+      - dir # Debug: List files
+      - if exist gradlew.bat (echo gradlew.bat exists) else (echo gradlew.bat missing; exit 1)
+      - java -version # Verify Java installation
       - echo Cleaning and preparing the build with Gradle...
-      - dir # Debug to list files
       - echo "Using Gradle Wrapper to build the project..."
       - gradlew.bat clean build # Use the Gradle wrapper for Windows
       - echo Logging in to Amazon ECR...
