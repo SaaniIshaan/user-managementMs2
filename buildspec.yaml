@@ -6,10 +6,14 @@ phases:
       java: corretto11
   pre_build:
     commands:
-      - echo "Listing files in the current directory:"
-      - dir
+      - echo "Checking environment..."
+        - uname -a
+        - echo "Listing files in the current directory:"
+        - ls -la
+        - echo "Ensuring gradlew is executable..."
+        - chmod +x gradlew
       - echo "Building the project using Gradle Wrapper..."
-      - gradlew.bat clean build
+      - ./gradlew clean build
       - echo Logging in to Amazon ECR...
       - aws --version
       - REPOSITORY_URI=381492308048.dkr.ecr.us-east-1.amazonaws.com/boa-user-registry
