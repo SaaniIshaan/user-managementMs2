@@ -7,11 +7,10 @@ phases:
       - gradlew.bat clean build # Use the Gradle wrapper for Windows
       - echo Logging in to Amazon ECR...
       - aws --version # Verify AWS CLI installation
-      - set REPOSITORY_URI=339713037827.dkr.ecr.ap-south-1.amazonaws.com/boa-user-registry
-      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin %REPOSITORY_URI%
-      - for /f "delims=" %%i in ('echo %CODEBUILD_RESOLVED_SOURCE_VERSION% ^| powershell -command {($_ -replace "`n", "") -replace "`r", ""}') do set COMMIT_HASH=%%i
-      - set COMMIT_HASH=%COMMIT_HASH:~0,7%
-      - for /f "tokens=2 delims=:" %%i in ("%CODEBUILD_BUILD_ID%") do set IMAGE_TAG=build-%%i
+      - REPOSITORY_URI=381492308048.dkr.ecr.us-east-1.amazonaws.com/boa-user-registry
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin %REPOSITORY_URI%
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
   build:
     commands:
       - echo Build started on %date% %time%
@@ -25,10 +24,11 @@ phases:
       - docker push %REPOSITORY_URI%:latest
       - docker push %REPOSITORY_URI%:%IMAGE_TAG%
       - echo Writing image definitions file...
-      - powershell -Command "& { $json = '[{\"name\":\"course-service\",\"imageUri\":\"%REPOSITORY_URI%:%IMAGE_TAG%\"}]'; Set-Content -Path imagedefinitions.json -Value $json }"
+      - printf '[{"name":"user-service","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
       - echo Writing image definitions file...
-      - set DOCKER_CONTAINER_NAME=boa-user-registry
-      - powershell -Command "& { $json = '[{\"name\":\"%DOCKER_CONTAINER_NAME%\",\"imageUri\":\"%REPOSITORY_URI%:%IMAGE_TAG%\"}]'; Set-Content -Path imagedefinitions.json -Value $json }"
+      - # add your container name
+      - DOCKER_CONTAINER_NAME=boa-user-registry
+      - printf '[{"name":"%s","imageUri":"%s"}]' $DOCKER_CONTAINER_NAME $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
       - echo %DOCKER_CONTAINER_NAME%
       - echo Printing imagedefinitions.json...
       - type imagedefinitions.json
