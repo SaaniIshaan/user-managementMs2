@@ -11,7 +11,7 @@ phases:
       - echo "Checking Java version..."
       - java -version
       - echo "Building the project with Gradle..."
-      - gradlew.bat clean build
+      - gradlew clean build
       - echo Logging in to Amazon ECR...
       - aws --version
       - REPOSITORY_URI=381492308048.dkr.ecr.us-east-1.amazonaws.com/boa-user-registry
