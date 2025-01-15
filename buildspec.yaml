@@ -1,0 +1,39 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Cleaning and preparing the build with Gradle...
+      - gradlew.bat clean build # Use the Gradle wrapper for Windows
+      - echo Logging in to Amazon ECR...
+      - aws --version # Verify AWS CLI installation
+      - set REPOSITORY_URI=339713037827.dkr.ecr.ap-south-1.amazonaws.com/boa-user-registry
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin %REPOSITORY_URI%
+      - for /f "delims=" %%i in ('echo %CODEBUILD_RESOLVED_SOURCE_VERSION% ^| powershell -command {($_ -replace "`n", "") -replace "`r", ""}') do set COMMIT_HASH=%%i
+      - set COMMIT_HASH=%COMMIT_HASH:~0,7%
+      - for /f "tokens=2 delims=:" %%i in ("%CODEBUILD_BUILD_ID%") do set IMAGE_TAG=build-%%i
+  build:
+    commands:
+      - echo Build started on %date% %time%
+      - echo Building the Docker image...
+      - docker build -t %REPOSITORY_URI%:latest .
+      - docker tag %REPOSITORY_URI%:latest %REPOSITORY_URI%:%IMAGE_TAG%
+  post_build:
+    commands:
+      - echo Build completed on %date% %time%
+      - echo Pushing the Docker images...
+      - docker push %REPOSITORY_URI%:latest
+      - docker push %REPOSITORY_URI%:%IMAGE_TAG%
+      - echo Writing image definitions file...
+      - powershell -Command "& { $json = '[{\"name\":\"course-service\",\"imageUri\":\"%REPOSITORY_URI%:%IMAGE_TAG%\"}]'; Set-Content -Path imagedefinitions.json -Value $json }"
+      - echo Writing image definitions file...
+      - set DOCKER_CONTAINER_NAME=boa-user-registry
+      - powershell -Command "& { $json = '[{\"name\":\"%DOCKER_CONTAINER_NAME%\",\"imageUri\":\"%REPOSITORY_URI%:%IMAGE_TAG%\"}]'; Set-Content -Path imagedefinitions.json -Value $json }"
+      - echo %DOCKER_CONTAINER_NAME%
+      - echo Printing imagedefinitions.json...
+      - type imagedefinitions.json
+
+artifacts:
+  files:
+    - imagedefinitions.json
+    - build\libs\*.jar # Windows path for Gradle's default JAR output
