@@ -4,7 +4,7 @@ phases:
   pre_build:
     commands:
       - echo Cleaning and preparing the build with Gradle...
-      - gradlew.bat clean build # Use the Gradle wrapper for Windows
+      - gradlew clean build # Use the Gradle wrapper for Windows
       - echo Logging in to Amazon ECR...
       - aws --version # Verify AWS CLI installation
       - REPOSITORY_URI=381492308048.dkr.ecr.us-east-1.amazonaws.com/boa-user-registry
