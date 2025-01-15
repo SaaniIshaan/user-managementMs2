@@ -5,6 +5,7 @@ phases:
     commands:
       - echo Cleaning and preparing the build with Gradle...
       - dir # Debug to list files
+      - echo "Using Gradle Wrapper to build the project..."
       - gradlew.bat clean build # Use the Gradle wrapper for Windows
       - echo Logging in to Amazon ECR...
       - aws --version # Verify AWS CLI installation
