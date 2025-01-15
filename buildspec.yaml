@@ -35,4 +35,4 @@ phases:
 artifacts:
   files:
     - imagedefinitions.json
-    - build/libs/user-app.jar
+    - build/libs/*.jar
