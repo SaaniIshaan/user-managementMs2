@@ -10,6 +10,8 @@ phases:
       - dir # Debug: List files
       - echo "Checking Java version..."
       - java -version
+      - echo "Listing files in the root directory:"
+      - ls -la
       - echo "Building the project with Gradle..."
       - gradlew clean build
       - echo Logging in to Amazon ECR...
