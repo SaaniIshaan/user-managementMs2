@@ -3,15 +3,9 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - echo "Preparing the environment..."
-      - dir # Debug: List files
-      - if exist gradlew.bat (echo gradlew.bat exists) else (echo gradlew.bat missing; exit 1)
-      - java -version # Verify Java installation
-      - echo Cleaning and preparing the build with Gradle...
-      - echo "Using Gradle Wrapper to build the project..."
-      - gradlew.bat clean build # Use the Gradle wrapper for Windows
+      - gradlew clean build
       - echo Logging in to Amazon ECR...
-      - aws --version # Verify AWS CLI installation
+      - aws --version
       - REPOSITORY_URI=381492308048.dkr.ecr.us-east-1.amazonaws.com/boa-user-registry
       - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin %REPOSITORY_URI%
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
